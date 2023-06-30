@@ -1,14 +1,30 @@
-import { signOut } from "firebase/auth";
-import React from "react";
-import { Link } from "react-router-dom";
-import { auth } from "../configs/firebase.config";
+
+import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { AuthContext } from "../contexts/AuthProvider";
 import useNav from "../hooks/useNav";
 
 const Nav = () => {
-  const user = null;
-
+  const {user,logOut} =useContext(AuthContext);
   const { navbar, navbarLogo } = useNav();
+  const navigate=useNavigate();
 
+  const handleLogout=()=>{
+    logOut()
+    .then(() => {
+      Swal.fire({
+          icon: 'success',
+          title: 'Log Out',
+          text:'log out Successfully',
+        })
+        navigate('/')
+        window.location.reload();
+    }).catch((error) => {
+      // An error happened.
+    });
+  }
+  
   return (
     <nav
       className={`border-gray-200 px-2 sm:px-8 py-2.5 fixed w-full top-0 z-50 transition-all ${
@@ -57,8 +73,8 @@ const Nav = () => {
               </Link>
             </li>
             <li>
-              {user ? (
-                <button onClick={() => signOut(auth)}>Logout</button>
+              {user?.email ? (
+                <button onClick={handleLogout}>Logout</button>
               ) : (
                 <Link
                   to="/login"
@@ -68,7 +84,6 @@ const Nav = () => {
                 </Link>
               )}
             </li>
-            <li>{user?.email}</li>
           </ul>
         </div>
       </div>
